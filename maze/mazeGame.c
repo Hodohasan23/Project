@@ -6,6 +6,18 @@
 #define Minimum_size 5 
 #define Maximum_size 100 
 
+typedef struct {
+    int x, y: // current position of the player
+} Player;
+
+typedef struct { // details of maze structure
+    char Size[Maximum_size][Maximum_size];
+    int width, length;
+    int position_x;
+    int position_y:
+    
+}Mazes;
+
 
 //Function prototypes
 
@@ -101,7 +113,7 @@ int main(int argc, char *argv[]) {
         return -1; // Suggests there was failure when loading maze
     }
 
-    // Game loop
+    // Maze game loop
     char turn;
     bool EndOfGame = false;
     while (!EndOfGame) {
@@ -124,7 +136,8 @@ int main(int argc, char *argv[]) {
             case 'P':
                 displayMaze(&mazes);
                 break;
-            case 'P':
+            case 'm':
+            case 'M':
                 displayMap(mazes);
                 break;
             case 'h':

@@ -30,6 +30,8 @@ int loadMaze(char *filename) {
 
 // Main function
 int main(int argc, char *argv[]) {
+
+    //checks correct number of arguements
     if (argc != 2) {
         printf("Usage: %s <maze_file>\n", argv[0]);
         return -1; // Indicate failure due to incorrect usage

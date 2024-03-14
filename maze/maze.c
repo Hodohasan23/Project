@@ -40,14 +40,14 @@ int loadMaze(Mazes* mazes, char *filename) {
     
     // Check if the file is empty
     fseek(file, 0, SEEK_END); // Move to the end of the file
-    long fileSize = ftell(file); // Get the current byte offset in the file
+    long fileSize = ftell(file); // Get the current byte offset in the file. Used chat GPT propt "what should I use after fseek when checking empty file"
     if (fileSize == 0) {
         printf("Error: File is empty %s\n", filename);
         fclose(file);
         return -1; 
     }
     
-    // Reset the file position indicator to the beginning of the file
+    // This resets position indicator of file right to the beginning
     fseek(file, 0, SEEK_SET);
 
     // Placeholder for actual maze loading logic

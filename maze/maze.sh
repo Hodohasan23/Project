@@ -238,14 +238,6 @@ else
     echo "FAIL"
 fi
 
-#This is another way of testing movement where all keys regardless of case that are inputed are tested
-echo -n "User inputs correct letter for movement- "
-./maze FirstMaze.txt < Inputs/InputsUser.txt > tmp
-if grep -q "Congratulations - successfully exited the maze" tmp; then
-    echo "PASS"
-else
-    echo "FAIL"
-fi
 
 echo -e "~~ Testing bad data ~~"
 
@@ -361,7 +353,41 @@ fi
 
 echo -e "~~ User inputs correct data ~~"
 
-# Add additional tests here as your game development progresses
+#This is another way of testing movement where all keys regardless of case that are inputed are tested
+echo -n "User inputs correct letter for movement- "
+./maze FirstMaze.txt < Inputs/InputsUser.txt > tmp
+if grep -q "Congratulations - successfully exited the maze" tmp; then
+    echo "PASS"
+else
+    echo "FAIL"
+fi
+
+#Test when user successfully completes maze by using correct keys
+echo -n "Testing completed maze so full run - "
+./maze Completed_FirstMaze.txt < Inputs/Completed_15X8.txt > tmp
+if grep -q "Congratulations - successfully exited the maze" tmp; then
+    echo "PASS"
+else
+    echo "FAIL"
+fi
+
+#Test when user successfully completes maze (15X8) by using correct keys
+echo -n "Testing completed maze so full run (15X8)- "
+./maze Maze_15X8.txt < Inputs/Completed_15X8.txt > tmp
+if grep -q "Congratulations - successfully exited the maze" tmp; then
+    echo "PASS"
+else
+    echo "FAIL"
+fi
+
+#Test when user successfully completes maze (20X20) by using correct keys
+echo -n "Testing completed maze so full run (20X20)- "
+./maze Maze_15X8.txt < Inputs/Completed_20X20.txt > tmp
+if grep -q "Congratulations - successfully exited the maze" tmp; then
+    echo "PASS"
+else
+    echo "FAIL"
+fi
 
 # adding read perms back on to bad_permissions.txt
 chmod +r Files/bad_permissions.txt

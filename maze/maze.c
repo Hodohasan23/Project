@@ -7,14 +7,14 @@
 #define Maximum_size 100 
 
 typedef struct {
-    int x, y: // current position of the player
+    int x, y; // current position of the player
 } Player;
 
 typedef struct { // details of maze structure
     char Size[Maximum_size][Maximum_size];
     int width, length;
     int position_x;
-    int position_y:
+    int position_y;
     
 }Mazes;
 
@@ -61,12 +61,12 @@ int determinePlayer(int a, int b, Player* player, Mazes* mazes ){
     //Determines players position with cooridinates x and y passed
 }
 
-void locateStart(const Player* player, Mazes* maze);{
+void locateStart(const Player* player, Mazes* maze){
 //Starting point inside maze is found and the position of the player is initialized
 //Player and maze game structure has a pointer that updates players position and point marked with 'S' is found by iterating maze grid
 
 }
-bool locateEnd(const Player* player, Mazes* maze);{
+bool locateEnd(const Player* player, Mazes* maze){
     //verifies if the point the player is moving towards is is the ending point
     //if true is returned (player reaches 'E') display success message
     //otherwise false is returned
@@ -101,6 +101,10 @@ int helpScreen(){
 // Main function
 int main(int argc, char *argv[]) {
 
+    Mazes mazes;
+    Player player;
+
+
     //checks correct number of arguements
     if (argc != 2) {
         printf("Usage: %s <maze_file>\n", argv[0]);
@@ -108,7 +112,7 @@ int main(int argc, char *argv[]) {
     }
     
     char *mazeFile = argv[1];
-    if (loadMaze(mazeFile) != 0) {
+    if (loadMaze(&mazes, mazeFile) != 0) {
         // If loadMaze returns -1, an error has occurred (file not found or empty)
         return -1; // Suggests there was failure when loading maze
     }
@@ -129,7 +133,7 @@ int main(int argc, char *argv[]) {
             case 'a':
             case 's':
             case 'd':
-                gameOver = PlayerMovement(&mazes, &player, turn);
+                EndOfGame = PlayerMovement(&player, &mazes, turn);
                 displayMaze(&mazes);
                 break;
             case 'p':
@@ -138,7 +142,7 @@ int main(int argc, char *argv[]) {
                 break;
             case 'm':
             case 'M':
-                displayMap(mazes);
+                displayMap(&mazes);
                 break;
             case 'h':
             case 'H':
@@ -154,4 +158,5 @@ int main(int argc, char *argv[]) {
         }
     
     return 0; 
+}
 }

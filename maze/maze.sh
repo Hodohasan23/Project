@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # remove read permissions from this file to perfrom Bad permissions test
-chmod -r Files/bad_permissions.txt
+chmod -r bad_permissions.txt
 
 gcc maze.c -o maze
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.ArrayList;
+//import java.time.temporal.ChronoUnit;
 
 /**
  * Represents a point in space and time, recorded by a GPS sensor.
@@ -74,13 +75,36 @@ public int size() {
 
   public Point lowestPoint() {
     // For the dummy version, this method always returns null.
-    return null;
-}
+      if (index.size() == 0) { // inspects if the list 'index' is empty
+          throw new GPSException("Error - List is empty or data is in incorret format");
+      }
+  
+      Point lowest = index.get(0); 
+      for (Point p : index) {
+          if (p.getElevation() < lowest.getElevation()) {
+              lowest = p; 
+          }
+      }
+      return lowest; 
+  }
+  
+
 
 public Point highestPoint() {
     // For the dummy version, this method always returns null.
-    return null;
-}
+    if (index.size() == 0) { // inspects if the list 'index' is empty
+          throw new GPSException("Error - List is empty or data is in incorret format");
+      }
+  
+      Point highest = index.get(0); 
+      for (Point p : index) {
+          if (p.getElevation() > highest.getElevation()) {
+              highest = p; 
+          }
+      }
+      return highest; 
+  }
+
 
 public double totalDistance() {
     // For the dummy version, this method always returns 0.

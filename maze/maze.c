@@ -1,121 +1,188 @@
+#include "maze.h"
 #include <stdio.h>
-#include <stdbool.h> // Neded to be include to do bool functions
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define Minimum_size 5 
-#define Maximum_size 100 
+// Function to validate the maze according to the given specifications
+bool mazeValidation(const Maze* maze) {
+    int startCount = 0;
+    int endCount = 0;
 
-typedef struct {
-    int x, y; // current position of the player
-} Player;
+    for (int i = 0; i < maze->height; i++) {
+        // Check if all rows are of the same length
+        if (strlen(maze->Size[i]) != maze->width) {
+            printf("Row %d length mismatch\n", i);
+            return false; // All rows must be the same length
+        }
+        for (int j = 0; j < maze->width; j++) {
+            char c = maze->Size[i][j];
+            if (c == 'S') startCount++;
+            else if (c == 'E') endCount++;
+            else if (c != '#' && c != ' ' && c != 'S' && c != 'E') {
+                printf("Invalid character %c at row %d, col %d\n", c, i, j);
+                return false; // Invalid character
+            }
+        }
+    }
 
-typedef struct { // details of maze structure
-    char Size[Maximum_size][Maximum_size];
-    int width, length;
-    int position_x;
-    int position_y;
-    
-}Mazes;
+    // There must be exactly one start and one end point
+    if (startCount != 1 || endCount != 1) {
+        printf("Start points: %d, End points: %d\n", startCount, endCount);
+        return false;
+    }
 
-
-//Function prototypes
-
-bool mazeValidation(const Mazes* mazes) {
-    //First verify that dimensions of the maze are within bounds so width and length  5 <= size => 100
-    // Check maze dimensions are within bounds (MIN_SIZE <= size <= MAX_SIZE)
-    // Confirm there is precisely one start point ('S') AND one end point ('E')
-    // Ensure there are only valid characters in each cell ('#', 'S', 'E')
-    // If all conditions are satisfied True is returned else Flase is returned 
+    return true;
 }
 
-//Function to load the maze from a file 
-//Only function partially completed to see if test script works
-int loadMaze(Mazes* mazes, char *filename) {
+// Function to load the maze from a file
+int loadMaze(Maze* maze, const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         printf("Error: Cannot open file %s\n", filename);
-        return -1; // Indicate failure to open the file
+        return 2; // File error
     }
-    
+
     // Check if the file is empty
     fseek(file, 0, SEEK_END); // Move to the end of the file
-    long fileSize = ftell(file); // Get the current byte offset in the file. Used chat GPT propt "what should I use after fseek when checking empty file"
+    long fileSize = ftell(file); // Get the current byte offset in the file
     if (fileSize == 0) {
         printf("Error: File is empty %s\n", filename);
         fclose(file);
-        return -1; 
+        return 2; 
     }
-    
-    // This resets position indicator of file right to the beginning
-    fseek(file, 0, SEEK_SET);
+    fseek(file, 0, SEEK_SET); // Move back to the beginning of the file
 
-    // Placeholder for actual maze loading logic
-    printf("Maze loaded successfully from %s\n", filename);
-    
+    char line[MAXIMUM_SIZE + 2];
+    int lineCount = 0;
+
+    while (fgets(line, sizeof(line), file) && lineCount < MAXIMUM_SIZE) {
+        line[strcspn(line, "\n")] = '\0'; // Remove the newline character
+        if (strlen(line) > 0) {
+            strcpy(maze->Size[lineCount], line);
+            lineCount++;
+        }
+    }
+
+    maze->height = lineCount;
+    maze->width = strlen(maze->Size[0]); // Assuming all lines are of equal length
+
     fclose(file);
-    return 0; 
+
+    if (!mazeValidation(maze)) {
+        printf("Error: txt file is in an incorrect format\n");
+        return 3; // Invalid maze
+    }
+
+    printf("File %s has been loaded successfully\n", filename);
+    return 0; // Success
 }
 
-int determinePlayer(int a, int b, Player* player, Mazes* mazes ){
-    //Determines players position with cooridinates x and y passed
+// Function to move the player
+bool playerMovement(Player* player, const Maze* maze, char direction) {
+    int newX = player->x;
+    int newY = player->y;
+
+    switch (direction) {
+        case 'W':
+        case 'w':
+            newY--;
+            break;
+        case 'A':
+        case 'a':
+            newX--;
+            break;
+        case 'S':
+        case 's':
+            newY++;
+            break;
+        case 'D':
+        case 'd':
+            newX++;
+            break;
+        default:
+            printf("Error: Movement character key is invalid\n");
+            return false;
+    }
+
+    if (newX < 0 || newX >= maze->width || newY < 0 || newY >= maze->height || maze->Size[newY][newX] == '#') {
+        printf("Error: Movement is invalid\n");
+        return false;
+    }
+
+    player->x = newX;
+    player->y = newY;
+
+    if (maze->Size[newY][newX] == 'E') {
+        printf("Congratulations - successfully exited the maze\n");
+        return true; // Game over
+    }
+
+    return false;
 }
 
-void locateStart(const Player* player, Mazes* maze){
-//Starting point inside maze is found and the position of the player is initialized
-//Player and maze game structure has a pointer that updates players position and point marked with 'S' is found by iterating maze grid
-
-}
-bool locateEnd(const Player* player, Mazes* maze){
-    //verifies if the point the player is moving towards is is the ending point
-    //if true is returned (player reaches 'E') display success message
-    //otherwise false is returned
-    
-}
-
-bool PlayerMovement(Player* player, Mazes* mazes, char direction) {
-    // Depending on the 'direction' the new position is calculated
-    // Needs to verify new point is vaild and player hasnt moved beyond maze structure or hit a wall
-    // If valid position of 'player' is updated true is returned
-    //If not return false
-
+// Function to display the map
+void displayMap(const Maze* maze, const Player* player) {
+    printf("\n");
+    for (int i = 0; i < maze->height; i++) {
+        for (int j = 0; j < maze->width; j++) {
+            if (i == player->y && j == player->x) {
+                printf("X");
+            } else {
+                printf("%c", maze->Size[i][j]);
+            }
+        }
+        printf("\n");
+    }
 }
 
-void displayMap(Mazes* maze){
-    //Map is shown on to screen for player
-}
-void mapUpdate(Mazes* maze, Player* player){
-    //map is updated with and X in the current position of the player using there cooridinates
-}
-
-int displayMaze(const Mazes* mazes) {
-    // Returns an integer which indicates whether maze logic was printed onto screen
-    return 0; // Implies success
-}
-
-int helpScreen(){
-    // Menu to help player know correct keys to press is displayed
+// Function to locate the start position of the player
+void locateStart(Player* player, const Maze* maze) {
+    for (int i = 0; i < maze->height; i++) {
+        for (int j = 0; j < maze->width; j++) {
+            if (maze->Size[i][j] == 'S') {
+                player->x = j;
+                player->y = i;
+                return;
+            }
+        }
+    }
 }
 
+// Function to check if the player has reached the end
+bool locateEnd(const Player* player, const Maze* maze) {
+    return maze->Size[player->y][player->x] == 'E';
+}
+
+// Function to display the maze
+void displayMaze(const Maze* maze) {
+    printf("Displaying maze:\n");
+    for (int i = 0; i < maze->height; i++) {
+        printf("%s\n", maze->Size[i]);
+    }
+}
+
+// Function to display the help screen
+int helpScreen() {
+    printf("Help screen\n");
+    return 0;
+}
 
 // Main function
 int main(int argc, char *argv[]) {
-
-    Mazes mazes;
-    Player player;
-
-
-    //checks correct number of arguements
     if (argc != 2) {
         printf("Usage: %s <maze_file>\n", argv[0]);
-        return -1; // Due to incorrect uusuage it fails
+        return 1; // Argument error
     }
-    
-    char *mazeFile = argv[1];
-    if (loadMaze(&mazes, mazeFile) != 0) {
-        // If loadMaze returns -1, an error has occurred (file not found or empty)
-        return -1; // Suggests there was failure when loading maze
+
+    Maze maze; // Assuming maze is a single Maze structure
+    Player player;
+
+    int result = loadMaze(&maze, argv[1]);
+    if (result != 0) {
+        return result; // Return the error code from loadMaze
     }
+
+    locateStart(&player, &maze);
 
     // Maze game loop
     char turn;
@@ -133,16 +200,14 @@ int main(int argc, char *argv[]) {
             case 'a':
             case 's':
             case 'd':
-                EndOfGame = PlayerMovement(&player, &mazes, turn);
-                displayMaze(&mazes);
-                break;
-            case 'p':
-            case 'P':
-                displayMaze(&mazes);
+                EndOfGame = playerMovement(&player, &maze, turn);
+                if (!EndOfGame) {
+                    displayMaze(&maze);
+                }
                 break;
             case 'm':
             case 'M':
-                displayMap(&mazes);
+                displayMap(&maze, &player);
                 break;
             case 'h':
             case 'H':
@@ -156,7 +221,8 @@ int main(int argc, char *argv[]) {
             default:
                 printf("Character is invalid. For further help press 'H'.\n");
         }
-    
-    return 0; 
+    }
+
+    return 0;
 }
-}
+

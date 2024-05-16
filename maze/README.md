@@ -1,46 +1,38 @@
-Maze Game
+In the straightforward text-based game The Maze Game, the goal is to find the exit by navigating a maze. The game shows the current condition of the maze and gives instructions on how to move the player character around it.
 
-Description
+How to Construct and Operate
 
-The Maze Game is a simple text-based game where the player navigates through a maze to find the exit. The game provides commands to move the player character within the maze and displays the current state of the maze.
+Using Makefile to Build Open your terminal, find the project directory, and type the following command to begin building the Maze Game:
 
-How to Build and Run
+create The source files will be compiled as a result, producing the maze executable.
 
-Building with Makefile
-To build the Maze Game, navigate to the project directory in your terminal and run the following command:
+Managing the Game Once the game has been built, use the following command to launch it:
 
+./maze <maze_file> The path to the maze file you wish to use for the game should be substituted for <maze_file>.
 
-make
-This will compile the source files and create an executable named maze.
+Application
 
-Running the Game
-After building the game, you can run it with the following command:
+After the game launches, you can move through the maze using the following controls:
 
+The player character can be moved up, left, down, or right with the keys W, A, S, and D.
+M: Show the maze as it is right now.
+H: Display the instructions on the help screen.
+Q: End the game now.
+Memory Allocation and Cleaning
 
-./maze <maze_file>
-Replace <maze_file> with the path to the maze file you want to use for the game.
+Memory is dynamically allocated for maze data structures in the Maze Game. Both the maze and each of its rows have memory allotted to them. The game has a function called freeMaze() to deallocate the memory allotted for the maze when it's no longer needed, ensuring correct memory cleanup and preventing memory leaks.
 
-Usage
+Create File Guidelines
 
-Once the game is running, you can use the following controls to navigate through the maze:
+Builds the executable maze that is the target.
+clean: Gets rid of the executable for Maze and the object files.
 
-W, A, S, D: Move the player character up, left, down, or right, respectively.
-M: Display the current state of the maze.
-H: Show the help screen with instructions.
-Q: Quit the game.
-Memory Allocation and Cleanup
+run: Uses the default maze file to launch the maze executable.
 
-The Maze Game dynamically allocates memory for maze data structures. Memory is allocated for the maze itself as well as for each row of the maze. To ensure proper memory cleanup and prevent memory leaks, the game provides a function freeMaze() to deallocate the memory allocated for the maze when it's no longer needed.
-
-Makefile Rules
-
-all: Builds the target executable maze.
-clean: Removes the object files and the maze executable.
-run: Runs the maze executable with a default maze file.
 Example
 
 Here's an example command to build and run the Maze Game:
 
-
 make
 ./maze Files/MyMaze.txt
+

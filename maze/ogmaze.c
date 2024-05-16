@@ -7,18 +7,25 @@
 bool mazeValidation(const Maze* maze) {
     int startCount = 0;
     int endCount = 0;
-    
-    for (int m = 0; m < maze->height; m++) {
-        if ((int)strlen(maze->Size[m]) != maze->width) { // For comparison it is cast strlen result to int 
-            printf("Row %d length mismatch: expected %d, got %zu\n", m, maze->width, strlen(maze->Size[m]));
-            return false; //Ensure the same length for all rows 
+
+    // This ensures that there is a valid range only accesible for width and height
+    if (maze->height < 5 || maze->height > 100 || maze->width < 5 || maze->width > 100) {
+        printf("Invalid maze dimensions: height = %d, width = %d\n", maze->height, maze->width);
+        return false;
+    }
+
+    for (int i = 0; i < maze->height; i++) {
+        // For comparison it is cast strlen result to int 
+        if ((int)strlen(maze->Size[i]) != maze->width) {
+            printf("Row %d length mismatch: expected %d, got %zu\n", i, maze->width, strlen(maze->Size[i]));
+            return false; // Ensure the same length for all rows 
         }
-        for (int n = 0; n < maze->width; n++) {
-            char c = maze->Size[m][n];
+        for (int j = 0; j < maze->width; j++) {
+            char c = maze->Size[i][j];
             if (c == 'S') startCount++;
             else if (c == 'E') endCount++;
             else if (c != '#' && c != ' ' && c != 'S' && c != 'E') {
-                printf("Invalid character '%c' at row %d, col %d\n", c, m, n);
+                printf("Invalid character '%c' at row %d, col %d\n", c, i, j);
                 return false; // Character is invalid 
             }
         }
@@ -54,23 +61,9 @@ int loadMaze(Maze* maze, const char *filename) {
     char line[MAXIMUM_SIZE + 2];
     int lineCount = 0;
 
-    // Allocate memory for maze rows
-    maze->Size = (char **)malloc(MAXIMUM_SIZE * sizeof(char *));
-    if (maze->Size == NULL) {
-        printf("Error: Memory allocation failed\n");
-        fclose(file);
-        return 3;
-    }
-
     while (fgets(line, sizeof(line), file) && lineCount < MAXIMUM_SIZE) {
-        line[strcspn(line, "\n")] = '\0'; /// Newline character is removed
+        line[strcspn(line, "\n")] = '\0'; // Newline character is removed
         if (strlen(line) > 0) {
-            maze->Size[lineCount] = (char *)malloc((strlen(line) + 1) * sizeof(char));
-            if (maze->Size[lineCount] == NULL) {
-                printf("Error: Memory allocation failed\n");
-                fclose(file);
-                return 3;
-            }
             strcpy(maze->Size[lineCount], line);
             lineCount++;
         }
@@ -82,9 +75,7 @@ int loadMaze(Maze* maze, const char *filename) {
     fclose(file);
 
     if (!mazeValidation(maze)) {
-        printf("Error: txt file is in an incorrect format\n");
-        freeMaze(maze);
-        return 3; // Maze is invalid
+        return 3; // Invalid maze
     }
 
     printf("File %s has been loaded successfully\n", filename);
@@ -137,12 +128,12 @@ bool playerMovement(Player* player, const Maze* maze, char direction) {
 // Function to display the map
 void displayMap(const Maze* maze, const Player* player) {
     printf("\n");
-    for (int m = 0; m < maze->height; m++) {
-        for (int n = 0; n < maze->width; n++) {
-            if (m == player->y && n == player->x) {
+    for (int i = 0; i < maze->height; i++) {
+        for (int j = 0; j < maze->width; j++) {
+            if (i == player->y && j == player->x) {
                 printf("X");
             } else {
-                printf("%c", maze->Size[m][n]);
+                printf("%c", maze->Size[i][j]);
             }
         }
         printf("\n");
@@ -151,11 +142,11 @@ void displayMap(const Maze* maze, const Player* player) {
 
 // The start position of the player is located using this function 
 void locateStart(Player* player, const Maze* maze) {
-    for (int m = 0; m < maze->height; m++) {
-        for (int n = 0; n < maze->width; n++) {
-            if (maze->Size[m][n] == 'S') {
-                player->x = n;
-                player->y = m;
+    for (int i = 0; i < maze->height; i++) {
+        for (int j = 0; j < maze->width; j++) {
+            if (maze->Size[i][j] == 'S') {
+                player->x = j;
+                player->y = i;
                 return;
             }
         }
@@ -170,8 +161,8 @@ bool locateEnd(const Player* player, const Maze* maze) {
 // The maze is displayed using this function
 void displayMaze(const Maze* maze) {
     printf("Displaying maze:\n");
-    for (int m = 0; m < maze->height; m++) {
-        printf("%s\n", maze->Size[m]);
+    for (int i = 0; i < maze->height; i++) {
+        printf("%s\n", maze->Size[i]);
     }
 }
 
@@ -181,14 +172,6 @@ int helpScreen() {
     return 0;
 }
 
-// Function to free allocated memory for the maze
-void freeMaze(Maze* maze) {
-    for (int m = 0; m < maze->height; m++) {
-        free(maze->Size[m]);
-    }
-    free(maze->Size);
-}
-
 // Main function
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -196,12 +179,12 @@ int main(int argc, char *argv[]) {
         return 1; // Argument error
     }
 
-    Maze maze; //This assumes maze is a single maze structure
+    Maze maze; // Assuming maze is a single Maze structure
     Player player;
 
     int result = loadMaze(&maze, argv[1]);
     if (result != 0) {
-        return result; // The error code from loadMaze is called to be returned
+        return result; // Return the error code from loadMaze
     }
 
     locateStart(&player, &maze);
@@ -245,20 +228,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    freeMaze(&maze); // Free allocated memory
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

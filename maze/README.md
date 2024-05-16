@@ -35,4 +35,3 @@ Here's an example command to build and run the Maze Game:
 
 make
 ./maze Files/MyMaze.txt
-
